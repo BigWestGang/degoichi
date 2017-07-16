@@ -4,6 +4,7 @@ import (
     "fmt"
     "github.com/BurntSushi/toml"
     "log"
+    "os"
 )
 
 type Config struct {
