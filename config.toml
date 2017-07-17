@@ -1,5 +1,5 @@
 [[Config]]
-provider = "vagrant/virtualbox"
+provider = "vagrant"
 box = "bento/ubuntu-16.04"
 
 [[Network]]
