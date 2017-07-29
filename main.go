@@ -5,9 +5,8 @@ import (
 	"fmt"
 	toml "github.com/BurntSushi/toml"
 	"github.com/davecgh/go-spew/spew"
-	colorable "github.com/mattn/go-colorable"
+	color "github.com/fatih/color"
 	errors "github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -20,32 +19,59 @@ type Configs struct {
 	Config []Config
 }
 
+type Network struct {
+	Type  string
+	Guest string
+	Host  string
+	Ip    string
+}
+
+type Networks struct {
+	Network []Network
+}
+
+type Bookshelf struct {
+	Dir string
+}
+
+type Bookshelves struct {
+	Bookshelf []Bookshelf
+}
+
 func main() {
-	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	log.SetOutput(colorable.NewColorableStdout())
 	var config Configs
 	_, err := toml.DecodeFile("config.toml", &config)
 	if err != nil {
 		switch errors.Cause(err).(type) {
 		case *os.PathError:
-			log.Error(err)
-			if Question("Would you like to create a config.toml? (y/n) default: y") {
-				fmt.Println("yes")
+			color.Red("Not found config.toml file!")
+			if Question("Would you like to create a config.toml? (y/n) ") {
+				createConfigToml()
 			} else {
 				fmt.Println("no")
 			}
 		default:
-			log.Error(err)
 			spew.Dump(err)
 		}
 
 	}
 	for _, s := range config.Config {
 		if s.Provider == "vagrant" {
-
 		}
 		fmt.Printf("%s (%s)\n", s.Provider, s.Box)
 	}
+}
+
+func createConfigToml() {
+	fp, err := os.Create("./config.toml")
+	if err != nil {
+		color.Red("err")
+	}
+	defer fp.Close()
+	writer := bufio.NewWriter(fp)
+	bw := bufio.NewWriter(writer)
+	bw.WriteString("[[Config]]\nprovider = \"vagrant\"\nbox = \"bento/ubuntu-16.04\"")
+	bw.Flush()
 }
 
 func Question(q string) bool {

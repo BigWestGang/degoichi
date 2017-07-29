@@ -16,5 +16,5 @@ host = "4000"
 type = "private_network"
 ip = "192.168.33.10"
 
-[[Cookbooks]]
+[[Bookshelf]]
 dir="cookbooks"
