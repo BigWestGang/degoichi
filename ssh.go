@@ -1,6 +1,7 @@
 package main
 
 import (
+  "bytes"
   "fmt"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
@@ -39,21 +40,29 @@ func main() {
     log.Println(err)
   }
   defer session.Close()
+
+  var stdout bytes.Buffer
+  session.Stdout = &stdout
   fmt.Println("command:sudo apt-get update -y")
-	mes, err := session.CombinedOutput("sudo apt-get update -y")
-  s := string(mes[:])
-  fmt.Println(s)
+	err1 := session.Run("sudo apt-get update -y")
+  if err1 != nil {
+    log.Println(err)
+  }
+  fmt.Println(stdout.String())
 
   session2, err := conn.NewSession()
   if err != nil {
     log.Println(err)
   }
-  defer session2.Close()
 
+  defer session2.Close()
+  session2.Stdout = &stdout
   fmt.Println("command: sudo -E apt-get upgrade -y")
-  mes2, err := session2.CombinedOutput("export DEBIAN_FRONTEND=noninteractive;sudo -E apt-get upgrade -y")
-  s2 := string(mes2[:])
-  fmt.Println(s2)
+  err2 := session2.Run("export DEBIAN_FRONTEND=noninteractive;sudo -E apt-get upgrade -y")
+  if err2 != nil {
+    log.Println(err)
+  }
+  fmt.Println(stdout.String())
 }
 
 func readPemKey(keyname string) ([]byte, error) {
