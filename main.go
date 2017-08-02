@@ -8,6 +8,7 @@ import (
 	color "github.com/fatih/color"
 	errors "github.com/pkg/errors"
 	"os"
+	"question" "./misc/question"
 )
 
 type Config struct {
@@ -45,7 +46,7 @@ func main() {
 		switch errors.Cause(err).(type) {
 		case *os.PathError:
 			color.Red("Not found config.toml file!")
-			if Question("Would you like to create a config.toml? (y/n) ") {
+			if question.Question("Would you like to create a config.toml? (y/n) ") {
 				createConfigToml()
 			} else {
 				fmt.Println("no")
@@ -53,7 +54,6 @@ func main() {
 		default:
 			spew.Dump(err)
 		}
-
 	}
 	for _, s := range config.Config {
 		if s.Provider == "vagrant" {
@@ -74,25 +74,3 @@ func createConfigToml() {
 	bw.Flush()
 }
 
-func Question(q string) bool {
-	result := true
-	fmt.Print(q)
-
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		i := scanner.Text()
-		if i == "Y" || i == "y" || i == "yes" || i == "" {
-			break
-		} else if i == "N" || i == "n" || i == "no" {
-			result = false
-			break
-		} else {
-			fmt.Println("Please enter y(yes) or n(no)")
-			fmt.Print(q)
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		panic(err)
-	}
-	return result
-}
