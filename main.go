@@ -8,7 +8,7 @@ import (
 	color "github.com/fatih/color"
 	errors "github.com/pkg/errors"
 	"os"
-	"question" "./misc/question"
+	question "./question"
 )
 
 type Config struct {
@@ -46,7 +46,12 @@ func main() {
 		switch errors.Cause(err).(type) {
 		case *os.PathError:
 			color.Red("Not found config.toml file!")
-			if question.Question("Would you like to create a config.toml? (y/n) ") {
+			question.Question("Would you like to create a config.toml? (y/n) ")
+			result, err := question.Scanner(os.Stdin, os.Stdout)
+			if err != nil {
+				spew.Dump(err)
+			}
+			if result {
 				createConfigToml()
 			} else {
 				fmt.Println("no")
